@@ -6,23 +6,40 @@ change the file names as needed
 $ python combine.py
 """
 
-from PyPDF2 import PdfFileReader, PdfFileWriter
+import sys
+from PyPDF2 import PdfReader, PdfWriter
 
 def merge_pdfs(paths, output):
     # Create the writer object
-    pdf_writer = PdfFileWriter()
+    pdf_writer = PdfWriter()
 
     # Loop over the pages
     for path in paths:
-        pdf_reader = PdfFileReader(path)
-        for page in range(pdf_reader.getNumPages()):
+        pdf_reader = PdfReader(path)
+        for page in range(len(pdf_reader.pages)):
             # Add each page to the writer object
-            pdf_writer.addPage(pdf_reader.getPage(page))
+            pdf_writer.add_page(pdf_reader.pages[page])
 
     # Write out the merged PDF
     with open(output, 'wb') as out:
         pdf_writer.write(out)
 
 if __name__ == '__main__':
-    paths = ['file1.pdf', 'file2.pdf']
-    merge_pdfs(paths, output='merged.pdf')
+
+    # set output file path
+    output = 'merged.pdf'
+
+    # delete first arg which is executable itself
+    del sys.argv[0]
+
+    # print what's going to happen
+    print("Merging ", end='')
+    for arg in sys.argv:
+        print(arg, "", end='')
+    print("into", output)
+
+    # merge all files in argv via function call
+    try:
+        merge_pdfs(sys.argv, output)
+    except:
+        sys.exit("invalid filename(s)")
